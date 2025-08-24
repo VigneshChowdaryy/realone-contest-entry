@@ -138,7 +138,7 @@
       facebook: "https://www.facebook.com/RealoneInvest/"
     };
     const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00";
-    // Your Apps Script Web App URL (current)
+    // Your Apps Script Web App URL
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby99xBUAg3BQVuiBA0G-cEB7An54RgXSdZmB0D6ztJL9-3FIsPMxJXE6u6K9QmDIPSc/exec";
     /* ================== */
 
@@ -158,23 +158,14 @@
     // Start step
     $("startBtn").addEventListener("click", ()=>goTo(1));
 
-    // Gate each step: show Continue only after link click
-    $("linkedin").addEventListener("click", ()=>{
-      $("continueLinkedIn").style.display = "inline-block";
-      $("ok-li").style.display = "block";
-    });
+    // Gate each step
+    $("linkedin").addEventListener("click", ()=>{ $("continueLinkedIn").style.display = "inline-block"; $("ok-li").style.display="block"; });
     $("continueLinkedIn").addEventListener("click", ()=>goTo(2));
 
-    $("whatsapp").addEventListener("click", ()=>{
-      $("continueWhatsApp").style.display = "inline-block";
-      $("ok-wa").style.display = "block";
-    });
+    $("whatsapp").addEventListener("click", ()=>{ $("continueWhatsApp").style.display = "inline-block"; $("ok-wa").style.display="block"; });
     $("continueWhatsApp").addEventListener("click", ()=>goTo(3));
 
-    $("facebook").addEventListener("click", ()=>{
-      $("continueFacebook").style.display = "inline-block";
-      $("ok-fb").style.display = "block";
-    });
+    $("facebook").addEventListener("click", ()=>{ $("continueFacebook").style.display = "inline-block"; $("ok-fb").style.display="block"; });
     $("continueFacebook").addEventListener("click", ()=>goTo(4));
 
     // Countdown
@@ -189,12 +180,10 @@
 
     // ===== JSONP duplicate pre-checks =====
     let mobileOK = false;
-    let couponOK = true; // coupon optional
+    let couponOK = true;
+    let validating = false;
 
-    function showFieldError(el, msg){
-      el.textContent = msg || '';
-      el.style.display = msg ? 'block' : 'none';
-    }
+    function showFieldError(el, msg){ el.textContent = msg || ''; el.style.display = msg ? 'block' : 'none'; }
 
     function jsonp(url, cbName){
       return new Promise((resolve) => {
@@ -209,56 +198,47 @@
 
     async function checkMobile(){
       const mobile = $("mobile").value.trim();
-      if (!mobile){ mobileOK=false; showFieldError($("err-mobile"), ''); updateSubmit(); return; }
+      if (!mobile){ mobileOK=false; showFieldError($("err-mobile"), ''); return mobileOK; }
       const cb = 'cb_m_'+Date.now();
       const url = `${APPS_SCRIPT_URL}?check=mobile&value=${encodeURIComponent(mobile)}&callback=${cb}`;
-      const res = await jsonp(url, cb); // {status:'AVAILABLE'|'TAKEN'}
-      if (res.status === 'TAKEN'){
-        mobileOK=false;
-        showFieldError($("err-mobile"), 'This mobile number is already registered.');
-      } else if (res.status === 'AVAILABLE'){
-        mobileOK=true;
-        showFieldError($("err-mobile"), '');
-      } else {
-        // if checker failed, allow submit but backend will still block duplicates
-        mobileOK=true;
-        showFieldError($("err-mobile"), '');
-      }
-      updateSubmit();
+      const res = await jsonp(url, cb);
+      if (res.status === 'TAKEN'){ mobileOK=false; showFieldError($("err-mobile"), 'This mobile number is already registered.'); }
+      else { mobileOK=true; showFieldError($("err-mobile"), ''); }
+      return mobileOK;
     }
 
     async function checkCoupon(){
       const coupon = $("coupon").value.trim();
-      if (!coupon){ couponOK=true; showFieldError($("err-coupon"), ''); updateSubmit(); return; }
+      if (!coupon){ couponOK=true; showFieldError($("err-coupon"), ''); return couponOK; }
       const cb = 'cb_c_'+Date.now();
       const url = `${APPS_SCRIPT_URL}?check=coupon&value=${encodeURIComponent(coupon)}&callback=${cb}`;
       const res = await jsonp(url, cb);
-      if (res.status === 'TAKEN'){
-        couponOK=false;
-        showFieldError($("err-coupon"), 'This coupon ID is already registered.');
-      } else if (res.status === 'AVAILABLE'){
-        couponOK=true;
-        showFieldError($("err-coupon"), '');
-      } else {
-        couponOK=true;
-        showFieldError($("err-coupon"), '');
-      }
-      updateSubmit();
+      if (res.status === 'TAKEN'){ couponOK=false; showFieldError($("err-coupon"), 'This coupon ID is already registered.'); }
+      else { couponOK=true; showFieldError($("err-coupon"), ''); }
+      return couponOK;
     }
-
-    $("mobile").addEventListener('blur', checkMobile);
-    $("coupon").addEventListener('blur', checkCoupon);
 
     function updateSubmit(){
-      $("submitBtn").disabled = !(mobileOK && couponOK && $("name").value.trim() && $("consent").checked);
+      $("submitBtn").disabled = validating || !($("name").value.trim() && $("consent").checked && mobileOK && couponOK);
     }
+
+    $("mobile").addEventListener('blur', async ()=>{ await checkMobile(); updateSubmit(); });
+    $("coupon").addEventListener('blur', async ()=>{ await checkCoupon(); updateSubmit(); });
+    $("mobile").addEventListener('input', ()=>{ mobileOK=false; showFieldError($("err-mobile"), ''); updateSubmit(); });
+    $("coupon").addEventListener('input', ()=>{ couponOK=true; showFieldError($("err-coupon"), ''); updateSubmit(); });
     $("name").addEventListener('input', updateSubmit);
     $("consent").addEventListener('change', updateSubmit);
 
-    // ===== Submit (POST via no-cors; server still enforces duplicates) =====
+    // Submit
     $("entryForm").addEventListener("submit", async (e)=>{
       e.preventDefault();
-      if (!mobileOK || !couponOK){ return; }
+      validating = true; updateSubmit();
+
+      const [mobilePass, couponPass] = await Promise.all([checkMobile(), checkCoupon()]);
+      validating = false; updateSubmit();
+
+      if (!mobilePass){ $("mobile").focus(); return; }
+      if (!couponPass){ $("coupon").focus(); return; }
       if (!$("consent").checked){ alert("Please agree to the Terms."); return; }
 
       const name   = $("name").value.trim();
@@ -266,16 +246,9 @@
       const email  = $("email").value.trim();
       const coupon = $("coupon").value.trim();
 
-      const payload = {
-        name, mobile, email, coupon,
-        steps: { linkedin:true, whatsapp:true, facebook:true },
-        ts: new Date().toISOString(),
-        userAgent: navigator.userAgent,
-        lang: navigator.language
-      };
+      const payload = { name, mobile, email, coupon, steps:{linkedin:true,whatsapp:true,facebook:true}, ts:new Date().toISOString(), userAgent:navigator.userAgent, lang:navigator.language };
 
       try{
-        // Use no-cors to avoid CORS error (we can't read the response; pre-checks handle UX)
         await fetch(APPS_SCRIPT_URL, {
           method:"POST",
           mode:"no-cors",
@@ -283,9 +256,10 @@
           body: JSON.stringify(payload)
         });
 
-        // Success screen (can’t read response, but server still blocks true duplicates)
-        goTo(5);
-        $("successMsg").innerHTML = `🕉️🐘🎉 Thank you, <b>${name}</b>! You are now officially entered into the Lucky Draw! 🎉🐘🕉️`;
+        if (mobileOK && couponOK){
+          goTo(5);
+          $("successMsg").innerHTML = `🕉️🐘🎉 Thank you, <b>${name}</b>! You are now officially entered into the Lucky Draw! 🎉🐘🕉️`;
+        }
       }catch(err){
         console.error(err);
         alert("Submission failed. Please try again.");
