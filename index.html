@@ -7,42 +7,138 @@
   <meta name="description" content="Complete the steps to enter the lucky draw." />
 
   <!-- Google tag (gtag.js) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-P3JCSRTDR6"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-P3JCSRTDR6');  // Replace with your GA4 Measurement ID
+    gtag('config', 'G-XXXXXXX'); // Replace with your GA4 Measurement ID
   </script>
 
   <style>
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#0b1020; color:#e6ebff; }
-    /* Simplified example - your full canvas CSS goes here */
-    h1 { text-align:center; margin-top:40px; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+           background:#0b1020; color:#e6ebff; }
+    h1 { text-align:center; margin-top:30px; }
+    .step { display:none; text-align:center; margin-top:40px; }
+    .step.active { display:block; }
+    button, a.btn { padding:10px 18px; margin:10px; border-radius:8px; 
+                    background:#7c9cff; color:#000; font-weight:600; 
+                    border:none; cursor:pointer; }
   </style>
 </head>
 <body>
   <h1>Lucky Draw Entry Website</h1>
-  <p style="text-align:center">This is your live lucky draw entry site template. Replace links, connect Google Sheet backend, and you're ready!</p>
+
+  <!-- Countdown -->
+  <div id="countdown" style="text-align:center; margin:20px; font-weight:bold;"></div>
+
+  <!-- Step 0 -->
+  <div class="step active" id="step0">
+    <p>Click below to start.</p>
+    <button onclick="goTo(1)">Start</button>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step" id="step1">
+    <p>Follow us on LinkedIn</p>
+    <a href="#" id="linkedin" class="btn" target="_blank">Open LinkedIn</a>
+    <button onclick="goTo(2)">I've Followed</button>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step" id="step2">
+    <p>Join our WhatsApp group</p>
+    <a href="#" id="whatsapp" class="btn" target="_blank">Open WhatsApp</a>
+    <button onclick="goTo(3)">I've Joined</button>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step" id="step3">
+    <p>Like/Join our Facebook page</p>
+    <a href="#" id="facebook" class="btn" target="_blank">Open Facebook</a>
+    <button onclick="goTo(4)">Done</button>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step" id="step4">
+    <p>Enter your details</p>
+    <form id="entryForm">
+      <input type="text" id="name" placeholder="Full name" required><br><br>
+      <input type="tel" id="mobile" placeholder="Mobile number" required><br><br>
+      <input type="email" id="email" placeholder="Email (optional)"><br><br>
+      <button type="submit">Enter Lucky Draw</button>
+    </form>
+  </div>
+
+  <!-- Step 5 -->
+  <div class="step" id="step5">
+    <p>✅ Thank you! You are entered into the lucky draw.</p>
+  </div>
 
   <script>
-    /* =====================
-       CONFIG – EDIT THESE
-       ===================== */
     const LINKS = {
       linkedIn: "https://www.linkedin.com/company/your-company/",
       whatsapp: "https://chat.whatsapp.com/your-group-code",
       facebook: "https://www.facebook.com/your-page"
     };
-
+    const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00";
     const BACKEND_ENDPOINT = "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec";
     const BACKEND_NOTIFY_ENDPOINT = "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec?action=notify";
 
-    const ANNOUNCE_TEXT = "Winner will be announced on Sep 15, 2025 through phone call.";
-    const DRAW_DEADLINE = "2025-09-T17:00:00-05:00"; // Example timezone
 
-    // Example GA event
-    gtag('event', 'page_loaded', { page: 'lucky_draw' });
+    document.getElementById("linkedin").href = LINKS.linkedIn;
+    document.getElementById("whatsapp").href = LINKS.whatsapp;
+    document.getElementById("facebook").href = LINKS.facebook;
+
+    function goTo(n) {
+      document.querySelectorAll(".step").forEach((s,i) => s.classList.toggle("active", i===n));
+    }
+
+    // Countdown
+    function updateCountdown() {
+      const deadline = new Date(DRAW_DEADLINE).getTime();
+      const now = Date.now();
+      const diff = deadline - now;
+      if (diff <= 0) {
+        document.getElementById("countdown").innerText = "Entries closed!";
+        document.querySelectorAll("button, a.btn").forEach(b => b.disabled = true);
+        return;
+      }
+      const d = Math.floor(diff/86400000),
+            h = Math.floor((diff%86400000)/3600000),
+            m = Math.floor((diff%3600000)/60000),
+            s = Math.floor((diff%60000)/1000);
+      document.getElementById("countdown").innerText = 
+        `${d}d ${h}h ${m}m ${s}s left to enter`;
+    }
+    setInterval(updateCountdown,1000);
+    updateCountdown();
+
+    // Form submit
+    document.getElementById("entryForm").addEventListener("submit", async e => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById("name").value,
+        mobile: document.getElementById("mobile").value,
+        email: document.getElementById("email").value,
+        ts: new Date().toISOString()
+      };
+      if (BACKEND_ENDPOINT) {
+        fetch(BACKEND_ENDPOINT, {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(payload)
+        });
+      }
+      goTo(5);
+      gtag('event','entry_submitted',{mobile:'entered'});
+      if (BACKEND_NOTIFY_ENDPOINT) {
+        fetch(BACKEND_NOTIFY_ENDPOINT,{
+          method:"POST",headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({type:"confirmation",payload})
+        });
+      }
+    });
   </script>
 </body>
 </html>
+
