@@ -31,9 +31,9 @@
   <div style="text-align:center; margin:20px 0;">
   <img src="logo.png" alt="Realone Invest Logo" style="max-width:200px; height:auto;"/>
   <h1>Lucky Draw Entry</h1>
-<!-- </div>
-  <h1>Lucky Draw Entry</h1>
-  <div id="countdown">Loading countdown…</div> -->
+</div>
+<!--   <h1>Lucky Draw Entry</h1>
+  <div id="countdown">Loading countdown…</div> --> -->
 
   <!-- Step 0 -->
   <div class="step active" id="step0">
@@ -63,21 +63,40 @@
   </div>
 
   <!-- Step 4: Form (includes Coupon ID) -->
-  <div class="step" id="step4">
-    <p>Final: Enter your details</p>
-    <form id="entryForm">
-      <div class="row"><input type="text" id="name" placeholder="Full name" required></div>
-      <div class="row"><input type="tel" id="mobile" placeholder="Mobile number" required></div>
-      <div class="row"><input type="email" id="email" placeholder="Email"></div>
-      <div class="row"><input type="text" id="coupon" placeholder="Coupon ID"></div>
-      <div class="row"><button type="submit">Enter Lucky Draw</button></div>
-    </form>
-  </div>
+<!-- Step 4: Form (includes Coupon ID) -->
+<div class="step" id="step4">
+  <p>Final: Enter your details</p>
+  <form id="entryForm">
+    <div class="row">
+      <input type="text" id="name" placeholder="Full name" required>
+    </div>
+
+    <!-- ✅ Replace with error-enabled mobile input -->
+    <div class="row">
+      <input type="tel" id="mobile" placeholder="Mobile number" required>
+      <div id="err-mobile" style="display:none;color:#ef4444;font-size:12px;"></div>
+    </div>
+
+    <div class="row">
+      <input type="email" id="email" placeholder="Email">
+    </div>
+
+    <!-- ✅ Replace with error-enabled coupon input -->
+    <div class="row">
+      <input type="text" id="coupon" placeholder="Coupon ID">
+      <div id="err-coupon" style="display:none;color:#ef4444;font-size:12px;"></div>
+    </div>
+
+    <div class="row">
+      <button type="submit">Enter Lucky Draw</button>
+    </div>
+  </form>
+</div>
 
   <!-- Step 5: Done -->
 <!-- Step 5 -->
 <div class="step" id="step5">
-  <p style="font-size:18px; font-weight:600; color:#10b981;">
+  <p id="successMsg" style="font-size:18px; font-weight:600; color:#10b981;">
     🎉 You are now officially entered into the Lucky Draw!
   </p>
   <p style="color:#94a3b8;">
@@ -86,12 +105,11 @@
   </p>
   <button onclick="goTo(0)">Enter Another</button>
 </div>
-
   <script>
     /* ========= CONFIG (edit these) ========= */
     const LINKS = {
       linkedIn: "https://www.linkedin.com/company/realoneinvest/",
-      whatsapp: "https://www.instagram.com/realoneinvest?igsh=bjhjdmUxdHloMzJw",
+      whatsapp: "https://chat.whatsapp.com/JVGBPB50vxbIv8txxPld9B?mode=ems_qr_t",
       facebook: "https://www.facebook.com/RealoneInvest/"
     };
     const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00"; // change to your date/time
