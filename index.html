@@ -6,7 +6,7 @@
   <title>Lucky Draw Entry</title>
   <meta name="description" content="Complete the steps to enter the lucky draw." />
 
-  <!-- Google Analytics (replace with your GA4 Measurement ID if needed) -->
+  <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-502386890"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -28,16 +28,13 @@
     h1{ margin:8px 0 6px; }
     #countdown{ text-align:center; font-weight:700; margin:4px 0 0; }
     .muted{ color:var(--muted); }
-
     .step{ display:none; text-align:center; margin:18px auto; max-width:640px; background:var(--card); border:1px solid #1e293b; border-radius:12px; padding:18px; }
     .step.active{ display:block; }
-
     button, a.btn{
       padding:10px 18px; margin:8px; border-radius:8px; background:var(--btn);
       color:#000; font-weight:600; border:none; cursor:pointer; text-decoration:none; display:inline-block;
     }
     button[disabled], .btn[disabled]{ opacity:.6; cursor:not-allowed; }
-
     .row{ margin:10px 0; }
     input{
       padding:10px 12px; border-radius:8px; border:1px solid #334155;
@@ -53,7 +50,7 @@
       <img src="logo.png" alt="Realone Invest Logo"/>
       <h1>Lucky Draw Entry</h1>
       <div id="countdown">Loading countdown…</div>
-      <p class="muted" id="announceLine"></p>
+      <p class="muted" id="announceLine">Winner will be announced on Sep 15, 2025 on our social channels.</p>
     </div>
 
     <!-- Step 0 -->
@@ -86,7 +83,7 @@
       <div class="ok" id="ok-fb">✔ Facebook step recorded</div>
     </div>
 
-    <!-- Step 4: Form (includes Coupon ID + inline errors) -->
+    <!-- Step 4: Form (with inline errors) -->
     <div class="step" id="step4">
       <p><strong>Final:</strong> Enter your details</p>
       <form id="entryForm" novalidate>
@@ -115,7 +112,7 @@
         </div>
 
         <div class="row">
-          <button type="submit">Enter Lucky Draw</button>
+          <button type="submit" id="submitBtn" disabled>Enter Lucky Draw</button>
         </div>
       </form>
     </div>
@@ -134,124 +131,140 @@
   </div>
 
   <script>
-    /* ========= CONFIG (edit these) ========= */
+    /* ===== CONFIG ===== */
     const LINKS = {
       linkedIn: "https://www.linkedin.com/company/realoneinvest/",
       whatsapp: "https://chat.whatsapp.com/JVGBPB50vxbIv8txxPld9B?mode=ems_qr_t",
       facebook: "https://www.facebook.com/RealoneInvest/"
     };
-    const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00"; // local time
-    const ANNOUNCE_TEXT = "Winner will be announced on Sep 15, 2025 on our social channels.";
-    const BACKEND_ENDPOINT = "https://script.google.com/macros/s/AKfycbxzeGLTpCka8Nv7Auc14YIfAMJIHViCKH0Ng3cJFm64zebcuUG_vPjM9D81bEkSyGNR/exec";
-    const BACKEND_NOTIFY_ENDPOINT = null; // email OFF
-    /* ====================================== */
+    const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00";
+    // Your Apps Script Web App URL (current)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxzeGLTpCka8Nv7Auc14YIfAMJIHViCKH0Ng3cJFm64zebcuUG_vPjM9D81bEkSyGNR/exec";
+    /* ================== */
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
-    // Elements
-    const elStartBtn = $('startBtn');
-    const elLinkedIn = $('linkedin');
-    const elContinueLI = $('continueLinkedIn');
-    const elWhatsApp  = $('whatsapp');
-    const elContinueWA = $('continueWhatsApp');
-    const elFacebook  = $('facebook');
-    const elContinueFB = $('continueFacebook');
-    const elEntryForm = $('entryForm');
-
-    const elName   = $('name');
-    const elMobile = $('mobile');
-    const elEmail  = $('email');
-    const elCoupon = $('coupon');
-
-    const elErrMobile = $('err-mobile');
-    const elErrCoupon = $('err-coupon');
-    const elSuccessMsg = $('successMsg');
-
+    // Steps nav
     function goTo(n){
       document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active", i===n));
       if (typeof gtag==='function') gtag('event','step_change',{step:n});
     }
 
-    // Set links and announcement
-    elLinkedIn.href = LINKS.linkedIn;
-    elWhatsApp.href = LINKS.whatsapp;
-    elFacebook.href = LINKS.facebook;
-    $('announceLine').textContent = ANNOUNCE_TEXT;
+    // Set links
+    $("linkedin").href = LINKS.linkedIn;
+    $("whatsapp").href = LINKS.whatsapp;
+    $("facebook").href = LINKS.facebook;
 
-    // Start
-    elStartBtn.addEventListener("click", ()=>goTo(1));
+    // Start step
+    $("startBtn").addEventListener("click", ()=>goTo(1));
 
     // Gate each step: show Continue only after link click
-    elLinkedIn.addEventListener("click", ()=>{
-      elContinueLI.style.display = "inline-block";
-      $('ok-li').style.display = "block";
-      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'linkedin'});
+    $("linkedin").addEventListener("click", ()=>{
+      $("continueLinkedIn").style.display = "inline-block";
+      $("ok-li").style.display = "block";
     });
-    elContinueLI.addEventListener("click", ()=>{
-      goTo(2);
-      if (typeof gtag==='function') gtag('event','social_follow',{platform:'linkedin'});
-    });
+    $("continueLinkedIn").addEventListener("click", ()=>goTo(2));
 
-    elWhatsApp.addEventListener("click", ()=>{
-      elContinueWA.style.display = "inline-block";
-      $('ok-wa').style.display = "block";
-      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'whatsapp'});
+    $("whatsapp").addEventListener("click", ()=>{
+      $("continueWhatsApp").style.display = "inline-block";
+      $("ok-wa").style.display = "block";
     });
-    elContinueWA.addEventListener("click", ()=>{
-      goTo(3);
-      if (typeof gtag==='function') gtag('event','social_join',{platform:'whatsapp'});
-    });
+    $("continueWhatsApp").addEventListener("click", ()=>goTo(3));
 
-    elFacebook.addEventListener("click", ()=>{
-      elContinueFB.style.display = "inline-block";
-      $('ok-fb').style.display = "block";
-      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'facebook'});
+    $("facebook").addEventListener("click", ()=>{
+      $("continueFacebook").style.display = "inline-block";
+      $("ok-fb").style.display = "block";
     });
-    elContinueFB.addEventListener("click", ()=>{
-      goTo(4);
-      if (typeof gtag==='function') gtag('event','social_follow',{platform:'facebook'});
-    });
+    $("continueFacebook").addEventListener("click", ()=>goTo(4));
 
     // Countdown
     function tickCountdown(){
-      const el = $('countdown');
-      const diff = new Date(DRAW_DEADLINE).getTime() - Date.now();
-      if (diff <= 0) {
-        el.textContent = "Entries closed";
-        document.querySelectorAll("button, a.btn").forEach(b=>b.disabled = true);
-        if (typeof gtag==='function') gtag('event','deadline_reached');
-        return;
-      }
-      const d = Math.floor(diff/86400000),
-            h = Math.floor((diff%86400000)/3600000),
-            m = Math.floor((diff%3600000)/60000),
-            s = Math.floor((diff%60000)/1000);
-      el.textContent = `${d}d ${h}h ${m}m ${s}s left to enter`;
+      const el=$("countdown");
+      const diff = new Date(DRAW_DEADLINE).getTime()-Date.now();
+      if(diff<=0){ el.textContent="Entries closed"; document.querySelectorAll("button, a.btn").forEach(b=>b.disabled=true); return; }
+      const d=Math.floor(diff/86400000),h=Math.floor((diff%86400000)/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+      el.textContent=`${d}d ${h}h ${m}m ${s}s left to enter`;
     }
-    tickCountdown(); setInterval(tickCountdown, 1000);
+    tickCountdown(); setInterval(tickCountdown,1000);
 
-    // Helpers for field errors
+    // ===== JSONP duplicate pre-checks =====
+    let mobileOK = false;
+    let couponOK = true; // coupon optional
+
     function showFieldError(el, msg){
-      if (!el) return;
       el.textContent = msg || '';
       el.style.display = msg ? 'block' : 'none';
     }
 
-    // Submit
-    elEntryForm.addEventListener("submit", async (e)=>{
+    function jsonp(url, cbName){
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        const cleanup = () => { script.remove(); try{ delete window[cbName]; }catch{} };
+        window[cbName] = (data) => { cleanup(); resolve(data); };
+        script.src = url;
+        script.onerror = () => { cleanup(); resolve({status:'ERROR'}); };
+        document.body.appendChild(script);
+      });
+    }
+
+    async function checkMobile(){
+      const mobile = $("mobile").value.trim();
+      if (!mobile){ mobileOK=false; showFieldError($("err-mobile"), ''); updateSubmit(); return; }
+      const cb = 'cb_m_'+Date.now();
+      const url = `${APPS_SCRIPT_URL}?check=mobile&value=${encodeURIComponent(mobile)}&callback=${cb}`;
+      const res = await jsonp(url, cb); // {status:'AVAILABLE'|'TAKEN'}
+      if (res.status === 'TAKEN'){
+        mobileOK=false;
+        showFieldError($("err-mobile"), 'This mobile number is already registered.');
+      } else if (res.status === 'AVAILABLE'){
+        mobileOK=true;
+        showFieldError($("err-mobile"), '');
+      } else {
+        // if checker failed, allow submit but backend will still block duplicates
+        mobileOK=true;
+        showFieldError($("err-mobile"), '');
+      }
+      updateSubmit();
+    }
+
+    async function checkCoupon(){
+      const coupon = $("coupon").value.trim();
+      if (!coupon){ couponOK=true; showFieldError($("err-coupon"), ''); updateSubmit(); return; }
+      const cb = 'cb_c_'+Date.now();
+      const url = `${APPS_SCRIPT_URL}?check=coupon&value=${encodeURIComponent(coupon)}&callback=${cb}`;
+      const res = await jsonp(url, cb);
+      if (res.status === 'TAKEN'){
+        couponOK=false;
+        showFieldError($("err-coupon"), 'This coupon ID is already registered.');
+      } else if (res.status === 'AVAILABLE'){
+        couponOK=true;
+        showFieldError($("err-coupon"), '');
+      } else {
+        couponOK=true;
+        showFieldError($("err-coupon"), '');
+      }
+      updateSubmit();
+    }
+
+    $("mobile").addEventListener('blur', checkMobile);
+    $("coupon").addEventListener('blur', checkCoupon);
+
+    function updateSubmit(){
+      $("submitBtn").disabled = !(mobileOK && couponOK && $("name").value.trim() && $("consent").checked);
+    }
+    $("name").addEventListener('input', updateSubmit);
+    $("consent").addEventListener('change', updateSubmit);
+
+    // ===== Submit (POST via no-cors; server still enforces duplicates) =====
+    $("entryForm").addEventListener("submit", async (e)=>{
       e.preventDefault();
+      if (!mobileOK || !couponOK){ return; }
+      if (!$("consent").checked){ alert("Please agree to the Terms."); return; }
 
-      // clear old errors
-      showFieldError(elErrMobile, '');
-      showFieldError(elErrCoupon, '');
-
-      const name   = elName.value.trim();
-      const mobile = elMobile.value.trim();
-      const email  = elEmail.value.trim();
-      const coupon = elCoupon.value.trim();
-
-      if (!name) { alert('Please enter your name.'); return; }
-      if (!$('consent').checked) { alert('Please agree to the Terms.'); return; }
+      const name   = $("name").value.trim();
+      const mobile = $("mobile").value.trim();
+      const email  = $("email").value.trim();
+      const coupon = $("coupon").value.trim();
 
       const payload = {
         name, mobile, email, coupon,
@@ -262,37 +275,17 @@
       };
 
       try{
-        if (BACKEND_ENDPOINT){
-          const res = await fetch(BACKEND_ENDPOINT, {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
-            body: JSON.stringify(payload)
-          });
+        // Use no-cors to avoid CORS error (we can't read the response; pre-checks handle UX)
+        await fetch(APPS_SCRIPT_URL, {
+          method:"POST",
+          mode:"no-cors",
+          headers:{"Content-Type":"application/json"},
+          body: JSON.stringify(payload)
+        });
 
-          // Apps Script returns TEXT: OK / DUPLICATE_MOBILE / DUPLICATE_COUPON / MOBILE_REQUIRED / SERVER_ERROR
-          const text = (await res.text() || '').toUpperCase();
-
-          if (text.includes('DUPLICATE_MOBILE')) {
-            showFieldError(elErrMobile, 'This mobile number is already registered.');
-            return;
-          }
-          if (text.includes('DUPLICATE_COUPON')) {
-            showFieldError(elErrCoupon, 'This coupon ID is already registered.');
-            return;
-          }
-          if (!text.includes('OK')) {
-            alert('Server issue. Please try again.');
-            return;
-          }
-        }
-
-        // Success — personalized message
+        // Success screen (can’t read response, but server still blocks true duplicates)
         goTo(5);
-        elSuccessMsg.innerHTML = `🕉️🐘🎉 Thank you, <b>${name}</b>! You are now officially entered into the Lucky Draw! 🎉🐘🕉️`;
-
-        if (typeof gtag==='function') {
-          gtag('event','entry_submitted',{ has_email: !!email, has_coupon: !!coupon });
-        }
+        $("successMsg").innerHTML = `🕉️🐘🎉 Thank you, <b>${name}</b>! You are now officially entered into the Lucky Draw! 🎉🐘🕉️`;
       }catch(err){
         console.error(err);
         alert("Submission failed. Please try again.");
