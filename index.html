@@ -6,139 +6,181 @@
   <title>Lucky Draw Entry</title>
   <meta name="description" content="Complete the steps to enter the lucky draw." />
 
-  <!-- Google tag (gtag.js) -->
+  <!-- Google Analytics (replace G-XXXXXXX with your GA4 ID) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXX'); // Replace with your GA4 Measurement ID
+    gtag('config', 'G-XXXXXXX');
   </script>
 
   <style>
-    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
-           background:#0b1020; color:#e6ebff; }
-    h1 { text-align:center; margin-top:30px; }
-    .step { display:none; text-align:center; margin-top:40px; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#0b1020; color:#e6ebff; }
+    h1 { text-align:center; margin:24px 0 8px; }
+    #countdown { text-align:center; font-weight:700; margin:4px 0 24px; }
+    .step { display:none; text-align:center; margin-top:18px; }
     .step.active { display:block; }
-    button, a.btn { padding:10px 18px; margin:10px; border-radius:8px; 
-                    background:#7c9cff; color:#000; font-weight:600; 
-                    border:none; cursor:pointer; }
+    button, a.btn { padding:10px 18px; margin:8px; border-radius:8px; background:#7c9cff; color:#000; font-weight:600; border:none; cursor:pointer; }
+    a.btn { display:inline-block; text-decoration:none; }
+    input { padding:10px 12px; border-radius:8px; border:1px solid #334155; width:280px; max-width:90%; background:#0f172a; color:#e2e8f0; }
+    .row { margin:8px 0; }
   </style>
 </head>
 <body>
-  <h1>Lucky Draw Entry Website</h1>
-
-  <!-- Countdown -->
-  <div id="countdown" style="text-align:center; margin:20px; font-weight:bold;"></div>
+  <div style="text-align:center; margin:20px 0;">
+  <img src="logo.png" alt="Realone Invest Logo" style="max-width:200px; height:auto;"/>
+  <h1>Lucky Draw Entry</h1>
+<!-- </div>
+  <h1>Lucky Draw Entry</h1>
+  <div id="countdown">Loading countdown…</div> -->
 
   <!-- Step 0 -->
   <div class="step active" id="step0">
-    <p>Click below to start.</p>
-    <button onclick="goTo(1)">Start</button>
+    <p>Complete the 3 steps to enter the lucky draw.</p>
+    <button id="startBtn">Start</button>
   </div>
 
-  <!-- Step 1 -->
+  <!-- Step 1: LinkedIn -->
   <div class="step" id="step1">
-    <p>Follow us on LinkedIn</p>
-    <a href="#" id="linkedin" class="btn" target="_blank">Open LinkedIn</a>
-    <button onclick="goTo(2)">I've Followed</button>
+    <p>Step 1: Follow us on LinkedIn</p>
+    <a href="#" id="linkedin" class="btn" target="_blank" rel="noopener">Open LinkedIn</a><br/>
+    <button id="continueLinkedIn" style="display:none;">I’ve Followed</button>
   </div>
 
-  <!-- Step 2 -->
+  <!-- Step 2: WhatsApp -->
   <div class="step" id="step2">
-    <p>Join our WhatsApp group</p>
-    <a href="#" id="whatsapp" class="btn" target="_blank">Open WhatsApp</a>
-    <button onclick="goTo(3)">I've Joined</button>
+    <p>Step 2: Join our WhatsApp group</p>
+    <a href="#" id="whatsapp" class="btn" target="_blank" rel="noopener">Open WhatsApp</a><br/>
+    <button id="continueWhatsApp" style="display:none;">I’ve Joined</button>
   </div>
 
-  <!-- Step 3 -->
+  <!-- Step 3: Facebook -->
   <div class="step" id="step3">
-    <p>Like/Join our Facebook page</p>
-    <a href="#" id="facebook" class="btn" target="_blank">Open Facebook</a>
-    <button onclick="goTo(4)">Done</button>
+    <p>Step 3: Like/Join our Facebook page</p>
+    <a href="#" id="facebook" class="btn" target="_blank" rel="noopener">Open Facebook</a><br/>
+    <button id="continueFacebook" style="display:none;">Done</button>
   </div>
 
-  <!-- Step 4 -->
+  <!-- Step 4: Form (includes Coupon ID) -->
   <div class="step" id="step4">
-    <p>Enter your details</p>
+    <p>Final: Enter your details</p>
     <form id="entryForm">
-      <input type="text" id="name" placeholder="Full name" required><br><br>
-      <input type="tel" id="mobile" placeholder="Mobile number" required><br><br>
-      <input type="email" id="email" placeholder="Email (optional)"><br><br>
-      <button type="submit">Enter Lucky Draw</button>
+      <div class="row"><input type="text" id="name" placeholder="Full name" required></div>
+      <div class="row"><input type="tel" id="mobile" placeholder="Mobile number" required></div>
+      <div class="row"><input type="email" id="email" placeholder="Email (optional)"></div>
+      <div class="row"><input type="text" id="coupon" placeholder="Coupon ID (optional)"></div>
+      <div class="row"><button type="submit">Enter Lucky Draw</button></div>
     </form>
   </div>
 
-  <!-- Step 5 -->
+  <!-- Step 5: Done -->
   <div class="step" id="step5">
-    <p>✅ Thank you! You are entered into the lucky draw.</p>
+    <p>✅ Thank you! Your entry has been submitted.</p>
   </div>
 
   <script>
+    /* ========= CONFIG (edit these) ========= */
     const LINKS = {
       linkedIn: "https://www.linkedin.com/company/your-company/",
       whatsapp: "https://chat.whatsapp.com/your-group-code",
       facebook: "https://www.facebook.com/your-page"
     };
-    const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00";
+    const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00"; // change to your date/time
     const BACKEND_ENDPOINT = "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec";
-    const BACKEND_NOTIFY_ENDPOINT = "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec?action=notify";
+    const BACKEND_NOTIFY_ENDPOINT = "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec?action=notify";// same URL + ?action=notify (sends email)
+    /* ====================================== */
 
+    // Set links
+    linkedin.href = LINKS.linkedIn;
+    whatsapp.href = LINKS.whatsapp;
+    facebook.href = LINKS.facebook;
 
-    document.getElementById("linkedin").href = LINKS.linkedIn;
-    document.getElementById("whatsapp").href = LINKS.whatsapp;
-    document.getElementById("facebook").href = LINKS.facebook;
+    // Simple step switcher
+    function goTo(n) { document.querySelectorAll(".step").forEach((s,i)=>s.classList.toggle("active", i===n)); }
 
-    function goTo(n) {
-      document.querySelectorAll(".step").forEach((s,i) => s.classList.toggle("active", i===n));
-    }
+    // Start
+    document.getElementById("startBtn").addEventListener("click", ()=>goTo(1));
+
+    // Gate each step: show Continue ONLY AFTER link is clicked
+    linkedin.addEventListener("click", ()=>{
+      document.getElementById("continueLinkedIn").style.display = "inline-block";
+      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'linkedin'});
+    });
+    document.getElementById("continueLinkedIn").addEventListener("click", ()=>{
+      goTo(2);
+      if (typeof gtag==='function') gtag('event','social_follow',{platform:'linkedin'});
+    });
+
+    whatsapp.addEventListener("click", ()=>{
+      document.getElementById("continueWhatsApp").style.display = "inline-block";
+      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'whatsapp'});
+    });
+    document.getElementById("continueWhatsApp").addEventListener("click", ()=>{
+      goTo(3);
+      if (typeof gtag==='function') gtag('event','social_join',{platform:'whatsapp'});
+    });
+
+    facebook.addEventListener("click", ()=>{
+      document.getElementById("continueFacebook").style.display = "inline-block";
+      if (typeof gtag==='function') gtag('event','social_link_opened',{platform:'facebook'});
+    });
+    document.getElementById("continueFacebook").addEventListener("click", ()=>{
+      goTo(4);
+      if (typeof gtag==='function') gtag('event','social_follow',{platform:'facebook'});
+    });
 
     // Countdown
-    function updateCountdown() {
-      const deadline = new Date(DRAW_DEADLINE).getTime();
-      const now = Date.now();
-      const diff = deadline - now;
+    function tickCountdown(){
+      const el = document.getElementById("countdown");
+      const diff = new Date(DRAW_DEADLINE).getTime() - Date.now();
       if (diff <= 0) {
-        document.getElementById("countdown").innerText = "Entries closed!";
-        document.querySelectorAll("button, a.btn").forEach(b => b.disabled = true);
+        el.textContent = "Entries closed";
+        document.querySelectorAll("button, a.btn").forEach(b=>b.disabled = true);
         return;
       }
       const d = Math.floor(diff/86400000),
             h = Math.floor((diff%86400000)/3600000),
             m = Math.floor((diff%3600000)/60000),
             s = Math.floor((diff%60000)/1000);
-      document.getElementById("countdown").innerText = 
-        `${d}d ${h}h ${m}m ${s}s left to enter`;
+      el.textContent = `${d}d ${h}h ${m}m ${s}s left to enter`;
     }
-    setInterval(updateCountdown,1000);
-    updateCountdown();
+    tickCountdown(); setInterval(tickCountdown, 1000);
 
-    // Form submit
-    document.getElementById("entryForm").addEventListener("submit", async e => {
+    // Submit
+    entryForm.addEventListener("submit", async (e)=>{
       e.preventDefault();
       const payload = {
-        name: document.getElementById("name").value,
-        mobile: document.getElementById("mobile").value,
-        email: document.getElementById("email").value,
+        name: name.value.trim(),
+        mobile: mobile.value.trim(),
+        email: email.value.trim(),
+        coupon: coupon.value.trim(),   // <- NEW: Coupon ID included
         ts: new Date().toISOString()
       };
-      if (BACKEND_ENDPOINT) {
-        fetch(BACKEND_ENDPOINT, {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify(payload)
-        });
-      }
-      goTo(5);
-      gtag('event','entry_submitted',{mobile:'entered'});
-      if (BACKEND_NOTIFY_ENDPOINT) {
-        fetch(BACKEND_NOTIFY_ENDPOINT,{
-          method:"POST",headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({type:"confirmation",payload})
-        });
+
+      try{
+        if (BACKEND_ENDPOINT){
+          // add mode:'no-cors' if you want fire-and-forget without CORS warnings
+          await fetch(BACKEND_ENDPOINT, {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify(payload)
+          });
+        }
+        if (typeof gtag==='function') gtag('event','entry_submitted',{has_email: !!payload.email, has_coupon: !!payload.coupon});
+        if (BACKEND_NOTIFY_ENDPOINT){
+          fetch(BACKEND_NOTIFY_ENDPOINT,{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({type:"confirmation", payload})
+          });
+        }
+        goTo(5);
+      }catch(err){
+        alert("Submission failed. Please try again.");
+        console.error(err);
       }
     });
   </script>
 </body>
 </html>
-
