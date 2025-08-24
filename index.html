@@ -7,12 +7,12 @@
   <meta name="description" content="Complete the steps to enter the lucky draw." />
 
   <!-- Google Analytics (replace G-XXXXXXX with your GA4 ID) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-502386890"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){ dataLayer.push(arguments); }
     gtag('js', new Date());
-    gtag('config', 'G-XXXXXXX');
+    gtag('config', 'G-502386890');
   </script>
 
   <style>
@@ -75,19 +75,27 @@
   </div>
 
   <!-- Step 5: Done -->
-  <div class="step" id="step5">
-    <p>✅ Thank you! Your entry has been submitted.</p>
-  </div>
+<!-- Step 5 -->
+<div class="step" id="step5">
+  <p style="font-size:18px; font-weight:600; color:#10b981;">
+    🎉 You are now officially entered into the Lucky Draw!
+  </p>
+  <p style="color:#94a3b8;">
+    Stay tuned — winners will be announced.<br>
+    Happy Ganesh Chaturthi & Good luck 🕉️ 🐘
+  </p>
+  <button onclick="goTo(0)">Enter Another</button>
+</div>
 
   <script>
     /* ========= CONFIG (edit these) ========= */
     const LINKS = {
-      linkedIn: "https://www.linkedin.com/company/your-company/",
-      whatsapp: "https://chat.whatsapp.com/your-group-code",
-      facebook: "https://www.facebook.com/your-page"
+      linkedIn: "https://www.linkedin.com/company/realoneinvest/",
+      whatsapp: "https://www.instagram.com/realoneinvest?igsh=bjhjdmUxdHloMzJw",
+      facebook: "https://www.facebook.com/RealoneInvest/"
     };
     const DRAW_DEADLINE = "2025-09-15T17:00:00-05:00"; // change to your date/time
-    const BACKEND_ENDPOINT = "https://script.google.com/macros/s/AKfycbyhOKsRWXZ8cz-_l3whZMJ5vlJ6f5b5KtN74p9mG9uT5yhG_YErb2kvbHgdjIeBN57J/exec";
+    const BACKEND_ENDPOINT = "https://script.google.com/macros/s/AKfycbwz9un2NMzcpkrjV-XEvD5WxfNYz1uNam-KmSsEIzXwfmtosyWpWcnxfkYaU7A6QDrp/exec";
     const BACKEND_NOTIFY_ENDPOINT = null;// "https://script.google.com/macros/s/AKfycby9l3lKAffx7YYRmTBdCB-4Jx6t1m2LiCBM860lUos4ALKoTM-B85z2MV9h3YoYQCaJ/exec?action=notify";// same URL + ?action=notify (sends email)
     /* ====================================== */
 
